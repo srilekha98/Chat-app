@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
+import java.text.DateFormat;
 import java.util.ArrayList;
 
 /**
@@ -56,7 +57,8 @@ class CustomListAdapter extends BaseAdapter{
         holder.text.setTextColor(Color.BLACK);
         holder.user.setText(listData.get(position).getMessageUser());
         holder.user.setTextColor(Color.GRAY);
-        holder.time.setText(listData.get(position).getMessageTime());
+        long time= Long.parseLong(listData.get(position).getMessageTime());
+        holder.time.setText(DateFormat.getTimeInstance().format(time));
         holder.time.setTextColor(Color.GRAY);
 
         return convertView;

@@ -6,4 +6,5 @@ package com.example.mkukunooru.chat;
 
 public class app {
     public static String UID = "";
+    public static String loginemail="";
 }

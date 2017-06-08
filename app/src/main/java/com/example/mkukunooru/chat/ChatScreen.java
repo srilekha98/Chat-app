@@ -66,6 +66,7 @@ public class ChatScreen extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main_menu, menu);
+//        menu.findItem(R.menu.main_menu).setTitle("Chat");
         return true;
     }
 

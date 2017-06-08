@@ -1,6 +1,7 @@
 package com.example.mkukunooru.chat;
 
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -16,15 +17,19 @@ import android.widget.Toast;
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+
+import org.json.JSONObject;
+
+import java.util.Iterator;
 
 public class MainLoginActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
     String email, password;
-    int signinflag=1;
+    int signinflag=0;
+    UserAccount user;
 
 
 
@@ -74,51 +79,16 @@ public class MainLoginActivity extends AppCompatActivity {
             public void onClick(View v) {
                 email=edit.getText().toString();
                 password=edit1.getText().toString();
-                System.out.println("clicked, signinflag= "+signinflag);
-                signin();
-                System.out.println("clicked, signinflag= "+signinflag);
-                if(signinflag==1)
-                {
-                    Intent intentMain = new Intent(MainLoginActivity.this ,
-                            ChatScreen.class);
-                    MainLoginActivity.this.startActivity(intentMain);
+                app.loginemail=email;
 
+                System.out.println("clicked, signinflag= "+signinflag);
 
-                }
+                Callapi task=new Callapi();
+                task.execute();
+                System.out.println("clicked, signinflag= "+signinflag);
+
             }
         });
-
-                if(FirebaseAuth.getInstance().getCurrentUser() == null) {
-                    // Start sign in/sign up activity
-                    startActivityForResult(
-                            AuthUI.getInstance()
-                                    .createSignInIntentBuilder()
-                                    .build(),
-                            SIGN_IN_REQUEST_CODE
-                    );
-                } else {
-                    // User is already signed in. Therefore, display
-                    // a welcome Toast
-                    Toast.makeText(getApplicationContext(), "Welcome " + FirebaseAuth.getInstance().getCurrentUser().getDisplayName(),
-                            Toast.LENGTH_LONG)
-                            .show();
-
-                    System.out.println(FirebaseAuth.getInstance().getCurrentUser().getEmail());
-                    System.out.println(FirebaseAuth.getInstance().getCurrentUser().getDisplayName());
-                    System.out.println(FirebaseAuth.getInstance().getCurrentUser().getUid());
-                        if(app.UID.equals("")) {
-
-                            app.UID = FirebaseAuth.getInstance().getCurrentUser().getEmail();
-                            System.out.println("uid is"+app.UID);
-                        }
-                    //app.UID=FirebaseAuth.getInstance().getCurrentUser().getDisplayName();
-
-                    // Load chat room contents
-                    Intent intentMain = new Intent(MainLoginActivity.this ,
-                            ChatScreen.class);
-                    MainLoginActivity.this.startActivity(intentMain);
-
-                }
 
     }
 
@@ -149,27 +119,6 @@ public class MainLoginActivity extends AppCompatActivity {
         return true;
     }
 
-    public void signin() {
-        mAuth.signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        Log.d("login", "signInWithEmail:onComplete:" + task.isSuccessful());
-                        System.out.println( "signInWithEmail:onComplete:");
-                        signinflag =1;
-                        // If sign in fails, display a message to the user. If sign in succeeds
-                        // the auth state listener will be notified and logic to handle the
-                        // signed in user can be handled in the listener.
-                        if (!task.isSuccessful()) {
-                            Log.w("login", "signInWithEmail:failed", task.getException());
-                            // Toast.makeText(this, R.string.auth_failed, Toast.LENGTH_SHORT).show();
-                            System.out.println( "signInWithEmail:failed");
-                        }
-
-                        // ...
-                    }
-                });
-    }
 
     @Override
     public void onStart() {
@@ -182,6 +131,60 @@ public class MainLoginActivity extends AppCompatActivity {
         super.onStop();
         if (mAuthListener != null) {
             //mAuth.removeAuthStateListener(mAuthListener);
+        }
+    }
+
+    private class Callapi extends AsyncTask<String, Void, String> {
+        protected String doInBackground(String... data) {
+            String s= null;
+            try {
+                s=  api.startService(getApplicationContext());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return s;
+        }
+
+        protected void onPostExecute(String result) {
+            System.out.println("Downloaded " + result + " bytes");
+            try {
+                JSONObject obj = new JSONObject(result);
+                Iterator key=obj.keys();
+                while(key.hasNext())
+                {
+                    String currentDynamicKey = (String)key.next();
+                    JSONObject acc = obj.getJSONObject(currentDynamicKey);
+                    String un=acc.getString("username");
+                    String pw=acc.getString("password");
+                    app.UID=acc.getString("displayname");
+                    System.out.println(un+pw);
+                    if((un.equals(email))&&(pw.equals(password)))
+                    {
+                        signinflag=1;
+                    }
+
+                }
+                if(signinflag==1)
+                {
+                    Intent intentMain = new Intent(MainLoginActivity.this ,
+                            ChatScreen.class);
+                    MainLoginActivity.this.startActivity(intentMain);
+
+
+                }
+                else
+                {
+                    Toast.makeText(getApplicationContext(), "invalid username or password ", Toast.LENGTH_LONG).show();
+                }
+
+            }
+            catch(Exception e)
+            {
+                System.out.println("gone");
+                e.printStackTrace();
+            }
+            System.out.println(result);
+
         }
     }
 
