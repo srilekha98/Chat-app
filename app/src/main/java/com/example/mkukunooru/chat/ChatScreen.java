@@ -19,11 +19,18 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.rockerhieu.emojicon.EmojiconGridFragment;
+import com.rockerhieu.emojicon.EmojiconTextView;
+import com.rockerhieu.emojicon.EmojiconsFragment;
+import com.rockerhieu.emojicon.emoji.Emojicon;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class ChatScreen extends AppCompatActivity {
+public class ChatScreen extends AppCompatActivity implements EmojiconGridFragment.OnEmojiconClickedListener,
+        EmojiconsFragment.OnEmojiconBackspaceClickedListener {
+     EditText input;
+    EmojiconTextView txt;
     ArrayList<ChatMessage> results = new ArrayList<>();
     CustomListAdapter adapter;
 
@@ -36,11 +43,63 @@ public class ChatScreen extends AppCompatActivity {
         System.out.println("entered chat screen");
         FloatingActionButton fab =
                 (FloatingActionButton)findViewById(R.id.fabcs);
+        input = (EditText) findViewById(R.id.input);
+//        txt=(EmojiconTextView)findViewById(R.id.txt);
+//        input.addTextChangedListener(new TextWatcher() {
+//            @Override
+//            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+//
+//            }
+//
+//            @Override
+//            public void onTextChanged(CharSequence s, int start, int before, int count) {
+//            txt.setText(s);
+//            }
+//
+//            @Override
+//            public void afterTextChanged(Editable s) {
+//
+//            }
+//        });
+//
+//        setEmojiconFragment(true);
+
+        /*
+        xml emojis
+               <com.rockerhieu.emojicon.EmojiconTextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_toLeftOf="@id/fabcs"
+            android:id="@+id/txt"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentLeft="true"/>
+
+        <com.rockerhieu.emojicon.EmojiconEditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Input"
+            android:id="@+id/input"
+            android:layout_below="@+id/txt"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"/>
+
+        <FrameLayout
+            android:id="@+id/emojicons"
+            android:layout_width="match_parent"
+            android:layout_height="fill_parent"
+            android:layout_below="@+id/input"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="38dp"/>
+
+         */
+
 
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                EditText input = (EditText)findViewById(R.id.input);
+
                 String content = input.getText().toString().trim();
                 ChatMessage newMessage = new ChatMessage();
                 newMessage.setMessageText(content);
@@ -144,30 +203,24 @@ public class ChatScreen extends AppCompatActivity {
                                       }
                                   });
 
-//
-//                 adapter = new FirebaseListAdapter<ChatMessage>(this, ChatMessage.class,
-//                        R.layout.message, FirebaseDatabase.getInstance().getReference()) {
-//                    @Override
-//                    protected void populateView(View v, ChatMessage model, int position) {
-//                        // Get references to the views of message.xml
-//                        TextView messageText = (TextView) v.findViewById(R.id.message_text);
-//                        TextView messageUser = (TextView) v.findViewById(R.id.message_user);
-//                        TextView messageTime = (TextView) v.findViewById(R.id.message_time);
-//
-//                        // Set their text
-//                        messageText.setText(model.getMessageText());
-//                        messageUser.setText(model.getMessageUser());
-//
-//                        // Format the date before showing it
-//                        messageTime.setText(DateFormat.format("dd-MM-yyyy (HH:mm:ss)",
-//                                model.getMessageTime()));
-//                    }
-//                };
-//        if(adapter!=null) {
-//            listOfMessages.setAdapter(adapter);
-//        }
     }
 
 
+    @Override
+    public void onEmojiconClicked(Emojicon emojicon) {
+        EmojiconsFragment.input(input, emojicon);
+    }
 
+    private void setEmojiconFragment(boolean useSystemDefault) {
+
+//        getSupportFragmentManager()
+//                .beginTransaction()
+//                .replace(R.id.emojicons, EmojiconsFragment.newInstance(useSystemDefault))
+//                .commit();
+    }
+
+    @Override
+    public void onEmojiconBackspaceClicked(View v) {
+        EmojiconsFragment.backspace(input);
+    }
 }

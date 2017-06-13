@@ -51,6 +51,7 @@
                     android:layout_marginStart="156dp"
                     android:layout_toEndOf="@+id/textView"
                     android:layout_toRightOf="@+id/textView"
+                    android:src="@drawable/ic_signup"
                     android:transitionName="loginFab"
                     app:fabSize="normal" />
             </RelativeLayout>
